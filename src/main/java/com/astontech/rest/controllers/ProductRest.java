@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -39,10 +40,10 @@ public class ProductRest {
         return ResponseEntity.ok(productService.findBySkuOrId(null, id));
     }
 
-    @GetMapping("/") // <-- http://localhost:8080/product/
-    public Iterable<Product> getAllProducts() {
-        return productService.findAll();
-    }
+//    @GetMapping("/") // <-- http://localhost:8080/product/
+//    public Iterable<Product> getAllProducts() {
+//        return productService.findAll();
+//    }
 
     @PostMapping("/")
     public ResponseEntity<Product> addProduct(@RequestBody Product product) {
@@ -58,6 +59,16 @@ public class ProductRest {
     public ResponseEntity<Product> updateProduct(@RequestBody Product product) {
         return new ResponseEntity<>(
                 productService.saveProduct(product),
+                HttpStatus.ACCEPTED
+        );
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> partialUpdateDynamic(@RequestBody Map<String, Object> updates,
+                                                  @PathVariable Integer id) {
+
+        return new ResponseEntity<>(
+                productService.patchProduct(updates, id),
                 HttpStatus.ACCEPTED
         );
     }

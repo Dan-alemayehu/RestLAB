@@ -17,4 +17,8 @@ public class Product {
     @Column(nullable = false)
     private String sku;
     private String description;
+    private Integer quantity;
+    private Double price;
+    private Double weight;
+    private String dimensions;
 }
