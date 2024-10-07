@@ -4,10 +4,13 @@ import com.astontech.rest.domain.Product;
 import com.astontech.rest.exceptions.ProductNotFoundException;
 import com.astontech.rest.repositories.ProductRepo;
 import com.astontech.rest.services.ProductService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +19,7 @@ import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 @RequestMapping("/product")
+@Slf4j
 public class ProductRest {
 
     private ProductService productService;
@@ -26,6 +30,7 @@ public class ProductRest {
 
     @GetMapping("/")
     public ResponseEntity<Iterable<Product>> findProduct() {
+
         return ResponseEntity.ok(productService.findAll());
     }
 

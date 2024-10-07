@@ -3,8 +3,8 @@ CREATE TABLE product (
     sku         VARCHAR(128)    NOT NULL,
     description VARCHAR(512),
     quantity    INTEGER,
-    price       FLOAT,
-    weight      FLOAT,
+    price       DOUBLE,
+    weight      DOUBLE,
     dimensions  VARCHAR(64),
 
     PRIMARY KEY (id)

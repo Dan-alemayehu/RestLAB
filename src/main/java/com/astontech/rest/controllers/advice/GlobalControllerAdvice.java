@@ -1,16 +1,12 @@
 package com.astontech.rest.controllers.advice;
 
-import com.astontech.rest.exceptions.FieldNotFoundException;
-import com.astontech.rest.exceptions.ProductNotFoundException;
+import com.astontech.rest.exceptions.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalControllerAdvice {
-    @ResponseBody
     @ExceptionHandler(ProductNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     String productNotFoundHandler(ProductNotFoundException pEx) {
@@ -18,11 +14,41 @@ public class GlobalControllerAdvice {
         return pEx.getLocalizedMessage();
     }
 
-    @ResponseBody
     @ExceptionHandler(FieldNotFoundException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     String fieldNotFoundHandler(FieldNotFoundException fEx) {
         return fEx.getLocalizedMessage();
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    String unAuthorizedHandler(UnauthorizedException uEx) {
+        return uEx.getLocalizedMessage();
+    }
+
+    @ExceptionHandler(CartNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    String cartNotFoundHandler(CartNotFoundException cEx) {
+        return cEx.getLocalizedMessage();
+    }
+
+    @ExceptionHandler(ItemNotInCartException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    String itemNotInCartHandler(ItemNotInCartException iEx) {
+        return iEx.getLocalizedMessage();
+    }
+
+    @ExceptionHandler(OutOfStockException.class)
+    @ResponseStatus(HttpStatus.OK)
+    String outOfStockHandler(OutOfStockException oEx) {
+        return oEx.getLocalizedMessage();
+    }
+
+    //General Exception Catch
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    String generalExceptionHandler(Exception ex) {
+        return "general server error";
     }
 
 }

@@ -103,4 +103,24 @@ public class ProductApiTestRestAssured {
                 .statusCode(422);
     }
 
+    @Test
+    public void patchProductWithValidFieldsShouldUpdateResource() {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("quantity", 72);
+        requestBody.put("price", 295.55);
+        requestBody.put("weight", 15.4);
+        requestBody.put("description", "23x2x60");
+
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .patch("/product/1")
+                .then()
+                .statusCode(202)
+                .assertThat()
+                .body("quantity", equalTo(72))
+                .body("price", equalTo(295.55f))
+                .body("weight", equalTo(15.4f))
+                .body("description", equalTo("23x2x60"));
+    }
+
 }
