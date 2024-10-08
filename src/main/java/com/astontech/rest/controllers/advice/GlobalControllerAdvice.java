@@ -44,11 +44,34 @@ public class GlobalControllerAdvice {
         return oEx.getLocalizedMessage();
     }
 
+    //Vehicle Exception Handlers
+    @ExceptionHandler(VehicleMakeNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    String vehicleMakeNotFoundHandler(VehicleMakeNotFoundException ex) {
+        return ex.getLocalizedMessage();
+    }
+
+    @ExceptionHandler(VehicleModelNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    String vehicleModelNotFoundHandler(VehicleModelNotFoundException ex) {
+        return ex.getLocalizedMessage();
+    }
+
+    @ExceptionHandler(VehicleNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    String vehicleNotFoundHandler(VehicleNotFoundException ex) {
+        return ex.getLocalizedMessage();
+    }
+
+
+
     //General Exception Catch
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     String generalExceptionHandler(Exception ex) {
         return "general server error";
     }
+
+
 
 }
