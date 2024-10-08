@@ -2,7 +2,9 @@ package com.astontech.rest.configuration;
 
 import com.astontech.rest.domain.Cart;
 import com.astontech.rest.domain.CartItem;
+import com.astontech.rest.domain.Vehicle;
 import com.astontech.rest.repositories.CartRepo;
+import com.astontech.rest.repositories.VehicleRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -15,31 +17,24 @@ import java.util.List;
 //@Profile("dev")
 public class SeedData implements CommandLineRunner {
 
-    private CartRepo cartRepo;
-
-    public SeedData(CartRepo cartRepo) {
-        this.cartRepo = cartRepo;
-    }
+    private VehicleRepository vehicleRepository;
 
     @Override
     public void run(String... args) throws Exception {
-        if (cartRepo.findAll().size() == 0) {
-            List<String> names = Arrays.asList("bip", "jay25", "strey");
-
-            names.forEach( name -> {
-                Cart cart = new Cart();
-                cart.setPurchased(false);
-                cart.setUsername(name);
-                CartItem cartItem1 = new CartItem("TV-134",3, new BigDecimal("189.99"));
-                CartItem cartItem2 = new CartItem("REMOTE-74",1, new BigDecimal("17.85"));
-                CartItem cartItem3 = new CartItem("TV-MOUNT-A32",5, new BigDecimal("45.49"));
-                cart.setItems(new ArrayList<>(Arrays.asList(cartItem1, cartItem2, cartItem3)));
-                cartRepo.save(cart);
-            });
-
-            cartRepo.findAll().forEach(System.out::println);
-
-        }
+        loadVehicleData();
     }
 
-}
+    private void loadVehicleData() {
+        if (vehicleRepository.count() == 0) {
+            List<Vehicle> vehicles = new ArrayList<>();
+            Vehicle vehicle1 = new Vehicle("WVU-345", 1995, "W349582028475", "Maroon");
+            Vehicle vehicle2 = new Vehicle("DUE-284", 2009, "U488692834765", "Red");
+            Vehicle vehicle3 = new Vehicle("IJE-485", 1999, "J49929386465", "Blue");
+            vehicles.add(vehicle1);
+            vehicles.add(vehicle2);
+            vehicles.add(vehicle3);
+            vehicleRepository.saveAll(vehicles);
+        }
+        System.out.println(vehicleRepository.count());
+        }
+    }
