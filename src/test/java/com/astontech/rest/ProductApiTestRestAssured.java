@@ -22,31 +22,31 @@ public class ProductApiTestRestAssured {
     @Test
     public void whenUsePathParamValidId_thenOk() {
         given().pathParam("id", 1)
-                .when().get("/product/{id}")
+                .when().get("/vehicle/{id}")
                 .then().statusCode(200);
     }
 
     @Test
     public void whenUsePathParamInValidId_thenNOT_FOUND() {
         given().pathParam("id", 999)
-                .when().get("/product/{id}")
+                .when().get("/vehicle/{id}")
                 .then().statusCode(404);
     }
 
     @Test
     public void whenUseQueryParamValidId_thenOk() {
-        given().queryParam("sku", "TV-SAM-284571")
-                .when().get("/product")
+        given().queryParam("id", 0)
+                .when().get("/vehicle")
                 .then().statusCode(200);
     }
 
     @Test
-    public void whenFindBySkuAssertProductDescription() {
-        given().queryParam("sku", "TV-SAM-283601")
-                .when().get("/product")
+    public void whenFindByIdAssertProductDescription() {
+        given().pathParam("id", 1)
+                .when().get("/vehicle/{id}")
                 .then().statusCode(200)
                 .assertThat()
-                .body("description", equalTo("Samsung 60\" TV"));
+                .body("year", equalTo(1995));
     }
 
     @Test

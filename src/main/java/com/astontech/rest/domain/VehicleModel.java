@@ -24,7 +24,7 @@ public class VehicleModel {
     private Integer version;
     private String modelName;
 
-    @OneToMany(mappedBy = "vehicleModel", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<Vehicle> vehicles = new ArrayList<>();
 
     //region CONSTRUCTORS
