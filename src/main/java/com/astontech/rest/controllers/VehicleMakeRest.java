@@ -59,6 +59,4 @@ public class VehicleMakeRest {
     public void deleteVehicleMake(@PathVariable Integer id){
         vehicleMakeService.deleteVehicleMake(id);
     }
-
-
 }

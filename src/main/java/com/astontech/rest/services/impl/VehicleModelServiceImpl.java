@@ -1,6 +1,7 @@
 package com.astontech.rest.services.impl;
 
 import com.astontech.rest.domain.VehicleModel;
+import com.astontech.rest.exceptions.VehicleModelAlreadyExistsException;
 import com.astontech.rest.exceptions.VehicleModelNotFoundException;
 import com.astontech.rest.repositories.VehicleMakeRepository;
 import com.astontech.rest.repositories.VehicleModelRepository;
@@ -23,6 +24,10 @@ public class VehicleModelServiceImpl implements VehicleModelService {
 
     @Override
     public VehicleModel saveVehicleModel(VehicleModel vehicleModel) {
+        Optional<VehicleModel> existingModel = vehicleModelRepository.findByModelName(vehicleModel.getModelName());
+        if (existingModel.isPresent()) {
+            throw new VehicleModelAlreadyExistsException(vehicleModel.getModelName());
+        }
         return vehicleModelRepository.save(vehicleModel);
     }
 

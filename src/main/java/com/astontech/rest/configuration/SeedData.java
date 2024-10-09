@@ -59,6 +59,20 @@ public class SeedData implements CommandLineRunner {
             vehicleMakeRepository.saveAll(vehicleMakes);
 
             System.out.println(vehicleMakeRepository.count());
+
+            // Printing out the VehicleMake, VehicleModel, and Vehicle IDs after saving
+            vehicleMakeRepository.findAll().forEach(make -> {
+                System.out.println("Vehicle Make ID: " + make.getId() + ", Make Name: " + make.getVehicleMakeName());
+                make.getVehicleModelList().forEach(model -> {
+                    System.out.println("  Vehicle Model ID: " + model.getId() + ", Model Name: " + model.getModelName());
+                    model.getVehicles().forEach(vehicle -> {
+                        System.out.println("    Vehicle ID: " + vehicle.getId() + ", License Plate: " + vehicle.getLicensePlate());
+                    });
+                });
+            });
+
+            System.out.println(vehicleMakeRepository.count());
+
         }
     }
 }

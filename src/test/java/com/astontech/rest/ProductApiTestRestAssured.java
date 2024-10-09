@@ -11,116 +11,227 @@ import static org.hamcrest.Matchers.*;
 
 public class ProductApiTestRestAssured {
 
+    //Vehicle Make Tests
+
     @Test
-    public void testEndpointShouldReturn200(){
-        //not really a test, just validates setup
-        get("/test")
-                .then()
-                .statusCode(200);
+    public void whenUseVehicleMakePathParamValidId_thenOk() {
+        given().pathParam("id", 1)
+                .when().get("/vehicle-makes/{id}")
+                .then().statusCode(200);
     }
 
     @Test
-    public void whenUsePathParamValidId_thenOk() {
-        given().pathParam("id", 1)
+    public void whenUseVehicleMakePathParamInvalidId_thenNotFound() {
+        given().pathParam("id", 999)
+                .when().get("/vehicle-makes/{id}")
+                .then().statusCode(404);
+    }
+
+    @Test
+    public void whenPostValidVehicleMake_thenCreated() {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("vehicleMakeName", "PoleStar");
+
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .when().post("/vehicle-makes/")
+                .then().statusCode(201);
+    }
+
+    @Test
+    public void whenUpdateValidVehicleMake_thenOk() {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("vehicleMakeName","Rivian");
+
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .pathParam("id", 7)
+                .when().put("/vehicle-makes/{id}")
+                .then().statusCode(200);
+    }
+
+    @Test
+    public void whenDeleteVehicleMake_thenOk() {
+        given().pathParam("id", 7)
+                .when().delete("/vehicle-makes/{id}")
+                .then().statusCode(200);
+    }
+
+    //Vehicle Model Tests
+    @Test
+    public void whenUseVehicleModelPathParamValidId_thenOk() {
+        given().pathParam("id", 2)
+                .when().get("/vehicle-models/{id}")
+                .then().statusCode(200);
+    }
+
+    @Test
+    public void whenUseVehicleModelPathParamInvalidId_thenNotFound() {
+        given().pathParam("id", 999)
+                .when().get("/vehicle-models/{id}")
+                .then().statusCode(404);
+    }
+
+    @Test
+    public void whenPostValidVehicleModel_thenCreated() {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("modelName", "Model 3");
+
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .when().post("/vehicle-models/")
+                .then().statusCode(201);
+    }
+
+    @Test
+    public void whenUpdateValidVehicleModel_thenOk() {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("modelName", "Roadster");
+
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .pathParam("id", 7)
+                .when().put("/vehicle-models/{id}")
+                .then().statusCode(200);
+    }
+
+    @Test
+    public void whenDeleteVehicleModel_thenOk() {
+        given().pathParam("id", 8)
+                .when().delete("/vehicle-models/{id}")
+                .then().statusCode(200);
+    }
+
+    //Vehicle Test
+    @Test
+    public void whenUseVehiclePathParamValidId_thenOk() {
+        given().pathParam("id", 3)
                 .when().get("/vehicle/{id}")
                 .then().statusCode(200);
     }
 
     @Test
-    public void whenUsePathParamInValidId_thenNOT_FOUND() {
+    public void whenUseVehiclePathParamInvalidId_thenNotFound() {
         given().pathParam("id", 999)
                 .when().get("/vehicle/{id}")
                 .then().statusCode(404);
     }
 
     @Test
-    public void whenUseQueryParamValidId_thenOk() {
-        given().queryParam("id", 0)
-                .when().get("/vehicle")
-                .then().statusCode(200);
-    }
-
-    @Test
-    public void whenFindByIdAssertProductDescription() {
-        given().pathParam("id", 1)
-                .when().get("/vehicle/{id}")
-                .then().statusCode(200)
-                .assertThat()
-                .body("year", equalTo(1995));
-    }
-
-    @Test
-    public void getResponseTime(){
-        System.out.println("Response time: " + get("/product/").timeIn(TimeUnit.MILLISECONDS) + "ms");
-    }
-
-    @Test
-    public void getResponseContentType() {
-        System.out.println("Content Type of response: " + get("/product/").then().extract().contentType());
-    }
-
-    @Test
-    public void saveProductShouldReturnAnID() {
+    public void whenPostValidVehicle_thenCreated() {
         JSONObject requestBody = new JSONObject();
-        requestBody.put("sku", "A17-223");
-        requestBody.put("description", "Apple iPad");
+        requestBody.put("licensePlate", "WVU-345");
+        requestBody.put("year", 1995);
+        requestBody.put("vin", "W349582028475");
+        requestBody.put("color", "Maroon");
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .post("/product/")
-                .then().statusCode(201)
-                .assertThat()
-                .body("$", hasKey("id"))
-                .body("sku", equalTo("A17-223"))
-                .body("description", equalTo("Apple iPad"));
+                .when().post("/vehicle/")
+                .then().statusCode(201);
     }
 
     @Test
-    public void patchProductWithInvalidIDShouldThrowException() {
+    public void whenUpdateValidVehicle_thenOk() {
         JSONObject requestBody = new JSONObject();
-        requestBody.put("sku", "A17-223");
-
-        given().header("Content-Type", "application/json")
-                .body(requestBody.toJSONString())
-                .pathParam("id", 999)
-                .when()
-                .patch("/product/{id}")
-                .then()
-                .statusCode(404);
-    }
-
-    @Test
-    public void patchProductWithInvalidFieldNameShouldThrowException() {
-        JSONObject requestBody = new JSONObject();
-        requestBody.put("dog", "A17-223");
+        requestBody.put("licensePlate", "ABC-123");
+        requestBody.put("year", 2020);
+        requestBody.put("vin", "W349582028475");
+        requestBody.put("color", "Red");
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
                 .pathParam("id", 1)
-                .when()
-                .patch("/product/{id}")
-                .then()
-                .statusCode(422);
+                .when().put("/vehicle/{id}")
+                .then().statusCode(200);
     }
 
     @Test
-    public void patchProductWithValidFieldsShouldUpdateResource() {
+    public void whenDeleteVehicle_thenOk() {
+        given().pathParam("id", 3)
+                .when().delete("/vehicle/{id}")
+                .then().statusCode(200);
+    }
+
+    //Exception testing
+    @Test
+    public void whenVehicleNotFound_thenNotFound() {
+        given().pathParam("id", 999)
+                .when().get("/vehicle/{id}")
+                .then().statusCode(404)
+                .assertThat()
+                .body(equalTo("Vehicle not found"));
+    }
+
+    @Test
+    public void whenVehicleMakeNotFound_thenNotFound() {
+        given().pathParam("id", 999)
+                .when().get("/vehicle-makes/{id}")
+                .then().statusCode(404)
+                .assertThat()
+                .body(equalTo("Vehicle make not found"));
+    }
+
+    @Test
+    public void whenVehicleModelNotFound_thenNotFound() {
+        given().pathParam("id", 999)
+                .when().get("/vehicle-models/{id}")
+                .then().statusCode(404)
+                .assertThat()
+                .body(equalTo("Vehicle model not found"));
+    }
+
+    @Test
+    public void whenFieldNotFound_thenUnprocessableEntity() {
+        given().pathParam("id", 999)
+                .when().get("/vehicle-models/{id}")
+                .then().statusCode(422)
+                .assertThat()
+                .body(equalTo("Field not found"));
+    }
+
+    @Test
+    public void whenUnauthorized_thenUnauthorized() {
+        given().pathParam("id", 999)
+                .when().get("/vehicle/{id}")
+                .then().statusCode(401)
+                .assertThat()
+                .body(equalTo("Unauthorized access"));
+    }
+
+    @Test
+    public void whenPostVehicleWithDuplicateVin_thenConflict() {
         JSONObject requestBody = new JSONObject();
-        requestBody.put("quantity", 72);
-        requestBody.put("price", 295.55);
-        requestBody.put("weight", 15.4);
-        requestBody.put("description", "23x2x60");
+        requestBody.put("vin", "W349582028475");
+        requestBody.put("licensePlate", "XYZ-123");
+        requestBody.put("year", 2020);
+        requestBody.put("color", "Black");
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .patch("/product/1")
-                .then()
-                .statusCode(202)
-                .assertThat()
-                .body("quantity", equalTo(72))
-                .body("price", equalTo(295.55f))
-                .body("weight", equalTo(15.4f))
-                .body("description", equalTo("23x2x60"));
+                .when().post("/vehicle/")
+                .then().statusCode(409);
     }
 
+    @Test
+    public void whenPostVehicleMakeWithDuplicateMakeName_thenConflict() {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("vehicleMakeName", "Tesla");
+
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .when().post("/vehicle-makes/")
+                .then().statusCode(409);
+    }
+
+    @Test
+    public void whenPostVehicleModelWithDuplicateModelName_thenConflict() {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("modelName", "Model X");
+
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .when().post("/vehicle-models/")
+                .then().statusCode(409);
+    }
 }

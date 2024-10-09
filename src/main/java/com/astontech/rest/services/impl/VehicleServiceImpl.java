@@ -2,6 +2,7 @@ package com.astontech.rest.services.impl;
 
 import com.astontech.rest.domain.Vehicle;
 import com.astontech.rest.exceptions.FieldNotFoundException;
+import com.astontech.rest.exceptions.VehicleAlreadyExistsException;
 import com.astontech.rest.exceptions.VehicleNotFoundException;
 import com.astontech.rest.repositories.VehicleRepository;
 import com.astontech.rest.services.VehicleModelService;
@@ -26,6 +27,10 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     public Vehicle saveVehicle(Vehicle vehicle) {
+        Optional<Vehicle> existingVehicle = vehicleRepository.findByVin(vehicle.getVin());
+        if (existingVehicle.isPresent()) {
+            throw new VehicleAlreadyExistsException(vehicle.getVin());
+        }
         return vehicleRepository.save(vehicle);
     }
 
