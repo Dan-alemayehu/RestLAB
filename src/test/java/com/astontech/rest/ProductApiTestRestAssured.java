@@ -12,7 +12,6 @@ import static org.hamcrest.Matchers.*;
 public class ProductApiTestRestAssured {
 
     //Vehicle Make Tests
-
     @Test
     public void whenUseVehicleMakePathParamValidId_thenOk() {
         given().pathParam("id", 1)
@@ -147,6 +146,24 @@ public class ProductApiTestRestAssured {
     }
 
     @Test
+    public void whenPatchVehicle_thenOk() {
+        // Creating a JSON object to represent the updates we want to apply
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("color", "Blue");  // Update the color
+        requestBody.put("year", 2022);     // Update the year
+
+        // Sending the PATCH request and verifying the response
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .pathParam("id", 3) // Assuming vehicle with ID 3 exists
+                .when().patch("/vehicle/{id}")
+                .then().statusCode(200)  // Expecting HTTP 200 OK status
+                .assertThat()
+                .body("color", equalTo("Blue"))  // Verifying the color is updated
+                .body("year", equalTo(2022));    // Verifying the year is updated
+    }
+
+    @Test
     public void whenDeleteVehicle_thenOk() {
         given().pathParam("id", 3)
                 .when().delete("/vehicle/{id}")
@@ -233,5 +250,44 @@ public class ProductApiTestRestAssured {
                 .body(requestBody.toJSONString())
                 .when().post("/vehicle-models/")
                 .then().statusCode(409);
+    }
+
+    @Test
+    public void whenUpdateVehicleWithDuplicateVin_thenConflict() {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("vin", "W349582028475"); // This VIN already exists
+        requestBody.put("licensePlate", "NEW-456");
+        requestBody.put("year", 2021);
+        requestBody.put("color", "Silver");
+
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .pathParam("id", 3) // Assuming vehicle with ID 3 is being updated
+                .when().put("/vehicle/{id}")
+                .then().statusCode(409); // Expecting conflict status code
+    }
+
+    @Test
+    public void whenUpdateVehicleMakeWithDuplicateMake_thenConflict() {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("vehicleMakeName", "Tesla"); // Assuming "Tesla" already exists
+
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .pathParam("id", 2) // Assuming vehicle make with ID 2 is being updated
+                .when().put("/vehicle-makes/{id}")
+                .then().statusCode(409); // Expecting conflict status code
+    }
+
+    @Test
+    public void whenUpdateVehicleModelWithDuplicateModel_thenConflict() {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("modelName", "Model X"); // Assuming "Model X" already exists
+
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .pathParam("id", 5) // Assuming vehicle model with ID 5 is being updated
+                .when().put("/vehicle-models/{id}")
+                .then().statusCode(409); // Expecting conflict status code
     }
 }

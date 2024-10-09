@@ -42,6 +42,12 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     public Vehicle updateVehicle(Vehicle vehicle) {
+        Optional<Vehicle> existingVehicle = vehicleRepository.findByVin(vehicle.getVin());
+
+        // Check if a different vehicle already has this VIN
+        if (existingVehicle.isPresent() && !existingVehicle.get().getId().equals(vehicle.getId())) {
+            throw new VehicleAlreadyExistsException(vehicle.getVin());
+        }
         return vehicleRepository.save(vehicle);
     }
 
@@ -50,6 +56,17 @@ public class VehicleServiceImpl implements VehicleService {
         //Find vehicle by ID or throw exception if not found
         Vehicle vehiclePatch = vehicleRepository.findById(id)
                 .orElseThrow(() -> new VehicleNotFoundException(String.valueOf(id)));
+
+        // Check if the VIN is part of the update
+        if(updates.containsKey("vin")){
+            String newVin = updates.get("vin").toString();
+
+            Optional<Vehicle> existingVehicle = vehicleRepository.findByVin(newVin);
+            if (existingVehicle.isPresent() && !existingVehicle.get().getId().equals(id)){
+                throw new VehicleAlreadyExistsException(newVin);
+            }
+        }
+
         //Iterate over the map of fields to update
         updates.forEach((fieldName, fieldValue) -> {
             try{

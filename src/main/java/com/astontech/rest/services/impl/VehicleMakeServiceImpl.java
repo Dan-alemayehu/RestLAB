@@ -40,13 +40,18 @@ public class VehicleMakeServiceImpl implements VehicleMakeService{
 
     @Override
     public VehicleMake updateVehicleMake(VehicleMake vehicleMake) {
+        Optional<VehicleMake> existingMake = vehicleMakeRepository.findByVehicleMakeName(vehicleMake.getVehicleMakeName());
+
+        // Ensure the name doesn't belong to another VehicleMake
+        if (existingMake.isPresent() && !existingMake.get().getId().equals(vehicleMake.getId())) {
+            throw new VehicleMakeAlreadyExistsException(vehicleMake.getVehicleMakeName());
+        }
         return vehicleMakeRepository.save(vehicleMake);
     }
 
     @Override
     public void deleteVehicleMake(Integer id) {
         vehicleMakeRepository.deleteById(id);
-
     }
 
     @Override

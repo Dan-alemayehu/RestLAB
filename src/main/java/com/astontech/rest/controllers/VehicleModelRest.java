@@ -1,6 +1,5 @@
 package com.astontech.rest.controllers;
 
-import com.astontech.rest.domain.VehicleMake;
 import com.astontech.rest.domain.VehicleModel;
 import com.astontech.rest.services.VehicleModelService;
 import lombok.extern.slf4j.Slf4j;
@@ -54,8 +53,9 @@ public class VehicleModelRest {
 
     //DeleteMethod: Delete a vehicle model
     @DeleteMapping("/{id}")
-    public void deleteVehicleModel(@PathVariable Integer id){
+    public ResponseEntity<Void> deleteVehicleModel(@PathVariable Integer id){
         vehicleModelService.deleteVehicleModelById(id);
+        return ResponseEntity.noContent().build();
     }
 
 

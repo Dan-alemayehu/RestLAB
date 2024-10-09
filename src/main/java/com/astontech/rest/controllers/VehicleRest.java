@@ -61,8 +61,9 @@ public class VehicleRest {
 
     //Delete Method: Delete a vehicle
     @DeleteMapping("/")
-    public void deleteVehicle(Integer id) {
+    public ResponseEntity<Void> deleteVehicle(Integer id) {
         vehicleService.deleteVehicleById(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

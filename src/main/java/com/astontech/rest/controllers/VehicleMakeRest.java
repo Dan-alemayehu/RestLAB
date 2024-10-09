@@ -56,7 +56,8 @@ public class VehicleMakeRest {
 
     //DeleteMethod: Delete a vehicle make
     @DeleteMapping("/{id}")
-    public void deleteVehicleMake(@PathVariable Integer id){
+    public ResponseEntity<Void> deleteVehicleMake(@PathVariable Integer id){
         vehicleMakeService.deleteVehicleMake(id);
+        return ResponseEntity.noContent().build();
     }
 }
