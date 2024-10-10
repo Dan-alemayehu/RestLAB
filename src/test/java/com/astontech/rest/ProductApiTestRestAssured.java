@@ -15,6 +15,14 @@ public class ProductApiTestRestAssured {
 
     //Vehicle Make Tests
     @Test
+    public void whenFindAllVehicleMakes_thenOk() {
+        when().get("/vehicle-makes/")
+                .then().statusCode(200)
+                .assertThat()
+                .body("$", hasSize(greaterThan(0)));
+    }
+
+    @Test
     public void whenUseVehicleMakePathParamValidId_thenOk() {
         given().pathParam("id", 1)
                 .when().get("/vehicle-makes/{id}")
@@ -46,7 +54,7 @@ public class ProductApiTestRestAssured {
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 2)
+                .pathParam("id", 3)
                 .when().put("/vehicle-makes/{id}")
                 .then().statusCode(200);
     }
@@ -55,14 +63,14 @@ public class ProductApiTestRestAssured {
     public void whenPatchVehicleMake_thenOk() {
         // Creating a JSON object to represent the updates we want to apply
         JSONObject requestBody = new JSONObject();
-        requestBody.put("vehicleMakeName", "Fisker");  // Update the name
+        requestBody.put("vehicleMakeName", "Fisker");
 
         // Sending the PATCH request and verifying the response
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 2) // Assuming vehicle with ID 2 exists
+                .pathParam("id", 3)
                 .when().patch("/vehicle-makes/{id}")
-                .then().statusCode(200)  // Expecting HTTP 200 OK status
+                .then().statusCode(200)
                 .assertThat()
                 .body("vehicleMakeName", equalTo("Fisker"));  // Verifying the color is updated
 
@@ -70,12 +78,20 @@ public class ProductApiTestRestAssured {
 
     @Test
     public void whenDeleteVehicleMake_thenOk() {
-        given().pathParam("id", 2)
+        given().pathParam("id", 3)
                 .when().delete("/vehicle-makes/{id}")
                 .then().statusCode(204);
     }
 
     //Vehicle Model Tests
+    @Test
+    public void whenFindAllVehicleModels_thenOk() {
+        when().get("/vehicle-models/")
+                .then().statusCode(200)
+                .assertThat()
+                .body("$", hasSize(greaterThan(0))); // Check that the result is not empty
+    }
+
     @Test
     public void whenUseVehicleModelPathParamValidId_thenOk() {
         given().pathParam("id", 2)
@@ -138,6 +154,14 @@ public class ProductApiTestRestAssured {
     }
 
     //Vehicle Test
+    @Test
+    public void whenFindAllVehicles_thenOk() {
+        when().get("/vehicle/")
+                .then().statusCode(200)
+                .assertThat()
+                .body("$", hasSize(greaterThan(0))); // Check that the result is not empty
+    }
+
     @Test
     public void whenUseVehiclePathParamValidId_thenOk() {
         given().pathParam("id", 3)
@@ -319,7 +343,7 @@ public class ProductApiTestRestAssured {
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 5) // Assuming vehicle model with ID 5 is being updated
+                .pathParam("id", 2) // Assuming vehicle model with ID 5 is being updated
                 .when().put("/vehicle-models/{id}")
                 .then().statusCode(409); // Expecting conflict status code
     }

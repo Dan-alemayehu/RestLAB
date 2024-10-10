@@ -32,7 +32,7 @@ public class VehicleModelServiceImpl implements VehicleModelService {
     }
 
     @Override
-    @Cacheable(value = "vehicleModels", key = "#id")
+//    @Cacheable(value = "vehicleModels", key = "#id")
     public VehicleModel findVehicleModelById(Integer id) {
         return vehicleModelRepository.findById(id)
                 .orElseThrow(() -> new VehicleModelNotFoundException(id.toString()));
@@ -48,10 +48,16 @@ public class VehicleModelServiceImpl implements VehicleModelService {
     }
 
     @Override
-    @CacheEvict(value = "vehicleModels", key = "#vehicleModel.id")
+//    @CacheEvict(value = "vehicleModels", key = "#vehicleModel.id")
     public VehicleModel updateVehicleModel(VehicleModel vehicleModel) {
         VehicleModel existingModel = vehicleModelRepository.findById(vehicleModel.getId())
                 .orElseThrow(() -> new VehicleModelNotFoundException(vehicleModel.getId().toString()));
+
+        // Check if another VehicleMake with the same name exists
+        Optional<VehicleModel> makeWithSameName = vehicleModelRepository.findByModelName(vehicleModel.getModelName());
+        if (makeWithSameName.isPresent() && !makeWithSameName.get().getId().equals(vehicleModel.getId())) {
+            throw new VehicleModelAlreadyExistsException(vehicleModel.getModelName());
+        }
 
         //Update the existingModel fields with the new values
         existingModel.setModelName(vehicleModel.getModelName());
@@ -64,7 +70,7 @@ public class VehicleModelServiceImpl implements VehicleModelService {
 
     //Patch Method: Change a field in the method
     @Override
-    @CacheEvict(value = "vehicleModels", key = "#id")
+//    @CacheEvict(value = "vehicleModels", key = "#id")
     public VehicleModel patchVehicleModel(Map<String, Object> updates, Integer id) throws FieldNotFoundException {
         VehicleModel vehicleModelPatch = vehicleModelRepository.findById(id)
                 .orElseThrow(() -> new VehicleModelNotFoundException(id.toString()));
@@ -81,7 +87,7 @@ public class VehicleModelServiceImpl implements VehicleModelService {
     }
 
     @Override
-    @CacheEvict(value = "vehicleModels", key = "#id")
+//    @CacheEvict(value = "vehicleModels", key = "#id")
     public void deleteVehicleModelById(Integer id) {
         vehicleModelRepository.deleteById(id);
     }

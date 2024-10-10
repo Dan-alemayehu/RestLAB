@@ -34,7 +34,7 @@ public class VehicleMakeServiceImpl implements VehicleMakeService{
     }
 
     @Override
-    @Cacheable(value = "vehicleMakes", key = "#id")
+//    @Cacheable(value = "vehicleMakes", key = "#id")
     public VehicleMake findVehicleMakeById(Integer id) {
         return vehicleMakeRepository.findById(id)
                 .orElseThrow(() -> new VehicleMakeNotFoundException(id.toString()));
@@ -50,10 +50,16 @@ public class VehicleMakeServiceImpl implements VehicleMakeService{
     }
 
     @Override
-    @CacheEvict(value = "vehicleMakes", key = "#vehicleMake.id")
+//    @CacheEvict(value = "vehicleMakes", key = "#vehicleMake.id")
     public VehicleMake updateVehicleMake(VehicleMake vehicleMake) {
         VehicleMake existingMake = vehicleMakeRepository.findById(vehicleMake.getId())
                 .orElseThrow(() -> new VehicleMakeNotFoundException(vehicleMake.getId().toString()));
+
+        // Check if another VehicleMake with the same name exists
+        Optional<VehicleMake> makeWithSameName = vehicleMakeRepository.findByVehicleMakeName(vehicleMake.getVehicleMakeName());
+        if (makeWithSameName.isPresent() && !makeWithSameName.get().getId().equals(vehicleMake.getId())) {
+            throw new VehicleMakeAlreadyExistsException(vehicleMake.getVehicleMakeName());
+        }
 
         // Update the existingMake fields with the new values
         existingMake.setVehicleMakeName(vehicleMake.getVehicleMakeName());
@@ -69,7 +75,7 @@ public class VehicleMakeServiceImpl implements VehicleMakeService{
 
     //Patch Method: Change a field in the method
     @Override
-    @CacheEvict(value = "vehicleMakes", key = "#id")
+//    @CacheEvict(value = "vehicleMakes", key = "#id")
     public VehicleMake patchVehicleMake(Map<String, Object> updates, Integer id) throws FieldNotFoundException {
         VehicleMake vehicleMakePatch = vehicleMakeRepository.findById(id)
                 .orElseThrow(() -> new VehicleMakeNotFoundException(String.valueOf(id)));
@@ -86,7 +92,7 @@ public class VehicleMakeServiceImpl implements VehicleMakeService{
     }
 
     @Override
-    @CacheEvict(value = "vehicleMakes", key = "#id")
+//    @CacheEvict(value = "vehicleMakes", key = "#id")
     public void deleteVehicleMake(Integer id) {
         vehicleMakeRepository.deleteById(id);
     }

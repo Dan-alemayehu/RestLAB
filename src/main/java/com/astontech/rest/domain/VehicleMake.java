@@ -1,6 +1,8 @@
 package com.astontech.rest.domain;
 
 import lombok.Data;
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
 import javax.persistence.*;
 import java.time.LocalDate;
