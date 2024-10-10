@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -46,12 +47,19 @@ public class VehicleMakeRest {
         );
     }
 
-    //Put Method: Update a vehicle model
+    //Put Method: Update a vehicle make
     @PutMapping("/{id}")
     public ResponseEntity<VehicleMake> updateVehicleMake(@PathVariable Integer id,
-                                                 @RequestBody VehicleMake vehicleMake){
+                                                         @RequestBody VehicleMake vehicleMake){
         vehicleMake.setId(id);
-        return ResponseEntity.ok(vehicleMakeService.saveVehicleMake(vehicleMake));
+        VehicleMake updatedVehicleMake = vehicleMakeService.updateVehicleMake(vehicleMake);
+        return ResponseEntity.ok(updatedVehicleMake);
+    }
+
+    //Patch Method: Patch vehicle make
+    @PatchMapping("/{id}")
+    public ResponseEntity<VehicleMake> patchVehicle(@PathVariable Integer id, @RequestBody Map<String, Object> updates){
+        return ResponseEntity.ok(vehicleMakeService.patchVehicleMake(updates, id));
     }
 
     //DeleteMethod: Delete a vehicle make

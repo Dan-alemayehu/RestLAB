@@ -16,7 +16,7 @@ public interface VehicleService {
 
     Vehicle patchVehicle(Map<String, Object> updates, Integer id);
 
-    void deleteVehicleById(Integer id);
+    void deleteVehicle(Integer id);
 
     List<Vehicle> findAllVehicles();
 }

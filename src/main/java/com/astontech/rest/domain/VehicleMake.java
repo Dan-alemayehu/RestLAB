@@ -14,7 +14,7 @@ public class VehicleMake {
 
     //region ATTRIBUTE
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "VehicleMakeId")
     private Integer id;
 

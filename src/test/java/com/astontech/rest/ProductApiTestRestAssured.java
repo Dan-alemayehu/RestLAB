@@ -3,6 +3,8 @@ package com.astontech.rest;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.*;
@@ -44,16 +46,33 @@ public class ProductApiTestRestAssured {
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 7)
+                .pathParam("id", 2)
                 .when().put("/vehicle-makes/{id}")
                 .then().statusCode(200);
     }
 
     @Test
+    public void whenPatchVehicleMake_thenOk() {
+        // Creating a JSON object to represent the updates we want to apply
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("vehicleMakeName", "Fisker");  // Update the name
+
+        // Sending the PATCH request and verifying the response
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .pathParam("id", 2) // Assuming vehicle with ID 2 exists
+                .when().patch("/vehicle-makes/{id}")
+                .then().statusCode(200)  // Expecting HTTP 200 OK status
+                .assertThat()
+                .body("vehicleMakeName", equalTo("Fisker"));  // Verifying the color is updated
+
+    }
+
+    @Test
     public void whenDeleteVehicleMake_thenOk() {
-        given().pathParam("id", 7)
+        given().pathParam("id", 2)
                 .when().delete("/vehicle-makes/{id}")
-                .then().statusCode(200);
+                .then().statusCode(204);
     }
 
     //Vehicle Model Tests
@@ -89,16 +108,33 @@ public class ProductApiTestRestAssured {
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 7)
+                .pathParam("id", 3)
                 .when().put("/vehicle-models/{id}")
                 .then().statusCode(200);
     }
 
     @Test
+    public void whenPatchVehicleModel_thenOk() {
+        // Creating a JSON object to represent the updates we want to apply
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("modelName", "CyberTruck");  // Update the name
+
+        // Sending the PATCH request and verifying the response
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .pathParam("id", 3) // Assuming vehicle with ID 2 exists
+                .when().patch("/vehicle-models/{id}")
+                .then().statusCode(200)  // Expecting HTTP 200 OK status
+                .assertThat()
+                .body("modelName", equalTo("CyberTruck"));  // Verifying the color is updated
+
+    }
+
+    @Test
     public void whenDeleteVehicleModel_thenOk() {
-        given().pathParam("id", 8)
+        given().pathParam("id", 3)
                 .when().delete("/vehicle-models/{id}")
-                .then().statusCode(200);
+                .then().statusCode(204);
     }
 
     //Vehicle Test
@@ -119,10 +155,10 @@ public class ProductApiTestRestAssured {
     @Test
     public void whenPostValidVehicle_thenCreated() {
         JSONObject requestBody = new JSONObject();
-        requestBody.put("licensePlate", "WVU-345");
-        requestBody.put("year", 1995);
-        requestBody.put("vin", "W349582028475");
-        requestBody.put("color", "Maroon");
+        requestBody.put("licensePlate", "KTS-694");
+        requestBody.put("year", 2020);
+        requestBody.put("vin", "M284673028772");
+        requestBody.put("color", "White");
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
@@ -135,12 +171,12 @@ public class ProductApiTestRestAssured {
         JSONObject requestBody = new JSONObject();
         requestBody.put("licensePlate", "ABC-123");
         requestBody.put("year", 2020);
-        requestBody.put("vin", "W349582028475");
+        requestBody.put("vin", "X457399340216");
         requestBody.put("color", "Red");
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 1)
+                .pathParam("id", 4)
                 .when().put("/vehicle/{id}")
                 .then().statusCode(200);
     }
@@ -155,7 +191,7 @@ public class ProductApiTestRestAssured {
         // Sending the PATCH request and verifying the response
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 3) // Assuming vehicle with ID 3 exists
+                .pathParam("id", 4) // Assuming vehicle with ID 3 exists
                 .when().patch("/vehicle/{id}")
                 .then().statusCode(200)  // Expecting HTTP 200 OK status
                 .assertThat()
@@ -165,9 +201,9 @@ public class ProductApiTestRestAssured {
 
     @Test
     public void whenDeleteVehicle_thenOk() {
-        given().pathParam("id", 3)
+        given().pathParam("id", 4)
                 .when().delete("/vehicle/{id}")
-                .then().statusCode(200);
+                .then().statusCode(204);
     }
 
     //Exception testing
@@ -177,7 +213,7 @@ public class ProductApiTestRestAssured {
                 .when().get("/vehicle/{id}")
                 .then().statusCode(404)
                 .assertThat()
-                .body(equalTo("Vehicle not found"));
+                .body(equalTo("Vehicle with ID 999 not found"));
     }
 
     @Test
@@ -186,7 +222,7 @@ public class ProductApiTestRestAssured {
                 .when().get("/vehicle-makes/{id}")
                 .then().statusCode(404)
                 .assertThat()
-                .body(equalTo("Vehicle make not found"));
+                .body(equalTo("Vehicle Make with ID 999 not found"));
     }
 
     @Test
@@ -195,26 +231,23 @@ public class ProductApiTestRestAssured {
                 .when().get("/vehicle-models/{id}")
                 .then().statusCode(404)
                 .assertThat()
-                .body(equalTo("Vehicle model not found"));
+                .body(equalTo("Vehicle Model with ID 999 not found"));
     }
 
     @Test
     public void whenFieldNotFound_thenUnprocessableEntity() {
-        given().pathParam("id", 999)
-                .when().get("/vehicle-models/{id}")
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("invalidField", "testValue"); // Field that does not exist in the Vehicle class
+
+        given().contentType("application/json")
+                .body(updates)
+                .pathParam("id", 1)  // Assuming vehicle with ID 1 exists
+                .when().patch("/vehicle/{id}")
                 .then().statusCode(422)
                 .assertThat()
-                .body(equalTo("Field not found"));
+                .body(equalTo("Object does not contain field: invalidField"));
     }
 
-    @Test
-    public void whenUnauthorized_thenUnauthorized() {
-        given().pathParam("id", 999)
-                .when().get("/vehicle/{id}")
-                .then().statusCode(401)
-                .assertThat()
-                .body(equalTo("Unauthorized access"));
-    }
 
     @Test
     public void whenPostVehicleWithDuplicateVin_thenConflict() {

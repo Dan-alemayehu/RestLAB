@@ -8,8 +8,10 @@ import com.astontech.rest.repositories.VehicleRepository;
 import com.astontech.rest.services.VehicleModelService;
 import com.astontech.rest.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
+import org.springframework.cache.annotation.Cacheable;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,18 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
+    public List<Vehicle> findAllVehicles() {
+        return vehicleRepository.findAll();
+    }
+
+    @Override
+    @Cacheable(value = "vehicles", key = "#id")
+    public Vehicle findVehicleById(Integer id) {
+        return vehicleRepository.findById(id)
+                .orElseThrow(() -> new VehicleNotFoundException(id.toString()));
+    }
+
+    @Override
     public Vehicle saveVehicle(Vehicle vehicle) {
         Optional<Vehicle> existingVehicle = vehicleRepository.findByVin(vehicle.getVin());
         if (existingVehicle.isPresent()) {
@@ -35,23 +49,34 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public Vehicle findVehicleById(Integer id) {
-        return vehicleRepository.findById(id)
-                .orElseThrow(() -> new VehicleNotFoundException(id.toString()));
-    }
-
-    @Override
+    @CacheEvict(value = "vehicles", key = "#vehicle.id")
     public Vehicle updateVehicle(Vehicle vehicle) {
-        Optional<Vehicle> existingVehicle = vehicleRepository.findByVin(vehicle.getVin());
+        Vehicle existingVehicle = vehicleRepository.findById(vehicle.getId())
+                .orElseThrow(() -> new VehicleNotFoundException(vehicle.getId().toString()));
 
         // Check if a different vehicle already has this VIN
-        if (existingVehicle.isPresent() && !existingVehicle.get().getId().equals(vehicle.getId())) {
+        Optional<Vehicle> vehicleWithSameVin = vehicleRepository.findByVin(vehicle.getVin());
+        if (vehicleWithSameVin.isPresent() && !vehicleWithSameVin.get().getId().equals(vehicle.getId())) {
             throw new VehicleAlreadyExistsException(vehicle.getVin());
         }
-        return vehicleRepository.save(vehicle);
+
+        // Update the fields on the existing vehicle
+        existingVehicle.setLicensePlate(vehicle.getLicensePlate());
+        existingVehicle.setVin(vehicle.getVin());
+        existingVehicle.setColor(vehicle.getColor());
+        existingVehicle.setYear(vehicle.getYear());
+        existingVehicle.setIsPurchase(vehicle.getIsPurchase());
+        existingVehicle.setPurchaseDate(vehicle.getPurchaseDate());
+        existingVehicle.setPurchasePrice(vehicle.getPurchasePrice());
+
+        // Save the updated vehicle back to the repository
+        Vehicle savedVehicle = vehicleRepository.save(existingVehicle);
+        System.out.println("Saved Vehicle: " + savedVehicle);
+        return savedVehicle;
     }
 
     @Override
+    @CacheEvict(value = "vehicles", key = "#id")
     public Vehicle patchVehicle(Map<String, Object> updates, Integer id) throws FieldNotFoundException{
         //Find vehicle by ID or throw exception if not found
         Vehicle vehiclePatch = vehicleRepository.findById(id)
@@ -87,12 +112,8 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public void deleteVehicleById(Integer id) {
+    @CacheEvict(value = "vehicles", key = "#id")
+    public void deleteVehicle(Integer id) {
         vehicleRepository.deleteById(id);
-    }
-
-    @Override
-    public List<Vehicle> findAllVehicles() {
-        return vehicleRepository.findAll();
     }
 }

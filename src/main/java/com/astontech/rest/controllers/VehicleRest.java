@@ -50,7 +50,8 @@ public class VehicleRest {
     public ResponseEntity<Vehicle> updateVehicle(@PathVariable Integer id,
                                                            @RequestBody Vehicle vehicle){
         vehicle.setId(id);
-        return ResponseEntity.ok(vehicleService.saveVehicle(vehicle));
+        Vehicle updatedVehicle = vehicleService.updateVehicle(vehicle);
+        return ResponseEntity.ok(updatedVehicle);
     }
 
     //Patch Method: Update a field in the vehicle model
@@ -60,9 +61,9 @@ public class VehicleRest {
     }
 
     //Delete Method: Delete a vehicle
-    @DeleteMapping("/")
-    public ResponseEntity<Void> deleteVehicle(Integer id) {
-        vehicleService.deleteVehicleById(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteVehicle(@PathVariable Integer id) {
+        vehicleService.deleteVehicle(id);
         return ResponseEntity.noContent().build();
     }
 
