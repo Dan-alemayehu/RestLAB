@@ -1,7 +1,6 @@
 package com.astontech.rest.domain;
 
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -12,6 +11,7 @@ import java.util.List;
 
 @Entity
 @Data
+
 public class VehicleModel {
 
     //region ATTRIBUTE

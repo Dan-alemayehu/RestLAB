@@ -1,17 +1,17 @@
 package com.astontech.rest.services.impl;
 
 import com.astontech.rest.domain.Vehicle;
-import com.astontech.rest.exceptions.FieldNotFoundException;
+import com.astontech.rest.domain.VehicleModel;
 import com.astontech.rest.exceptions.VehicleAlreadyExistsException;
 import com.astontech.rest.exceptions.VehicleNotFoundException;
+import com.astontech.rest.repositories.VehicleModelRepository;
 import com.astontech.rest.repositories.VehicleRepository;
-import com.astontech.rest.services.VehicleModelService;
 import com.astontech.rest.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import org.springframework.cache.annotation.Cacheable;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
@@ -21,46 +21,62 @@ import java.util.Optional;
 public class VehicleServiceImpl implements VehicleService {
 
     private final VehicleRepository vehicleRepository;
+    private final VehicleModelRepository vehicleModelRepository;
 
     @Autowired
-    public VehicleServiceImpl(VehicleRepository vehicleRepository){
+    public VehicleServiceImpl(VehicleRepository vehicleRepository, VehicleModelRepository vehicleModelRepository) {
         this.vehicleRepository = vehicleRepository;
+        this.vehicleModelRepository = vehicleModelRepository;
     }
 
     @Override
-    public List<Vehicle> findAllVehicles() {
-        return vehicleRepository.findAll();
+    public List<Vehicle> findAllVehicles(Integer makeId, Integer modelId) {
+        // Assuming VehicleModel contains a list of vehicles
+        VehicleModel vehicleModel = vehicleModelRepository.findById(modelId)
+                .orElseThrow(() -> new VehicleNotFoundException(modelId.toString()));
+        return vehicleModel.getVehicles();
     }
 
     @Override
     @Cacheable(value = "vehicles", key = "#id")
-    public Vehicle findVehicleById(Integer id) {
-        return vehicleRepository.findById(id)
+    public Vehicle findVehicleById(Integer makeId, Integer modelId, Integer id) {
+        VehicleModel vehicleModel = vehicleModelRepository.findById(modelId)
+                .orElseThrow(() -> new VehicleNotFoundException(modelId.toString()));
+        return vehicleModel.getVehicles().stream()
+                .filter(vehicle -> vehicle.getId().equals(id))
+                .findFirst()
                 .orElseThrow(() -> new VehicleNotFoundException(id.toString()));
     }
 
     @Override
-    public Vehicle saveVehicle(Vehicle vehicle) {
+    public Vehicle saveVehicle(Integer makeId, Integer modelId, Vehicle vehicle) {
+        VehicleModel vehicleModel = vehicleModelRepository.findById(modelId)
+                .orElseThrow(() -> new VehicleNotFoundException(modelId.toString()));
         Optional<Vehicle> existingVehicle = vehicleRepository.findByVin(vehicle.getVin());
         if (existingVehicle.isPresent()) {
             throw new VehicleAlreadyExistsException(vehicle.getVin());
         }
-        return vehicleRepository.save(vehicle);
+        vehicleModel.getVehicles().add(vehicle);
+        vehicleModelRepository.save(vehicleModel);
+        return vehicle;
     }
 
     @Override
     @CacheEvict(value = "vehicles", key = "#vehicle.id")
-    public Vehicle updateVehicle(Vehicle vehicle) {
-        Vehicle existingVehicle = vehicleRepository.findById(vehicle.getId())
+    public Vehicle updateVehicle(Integer makeId, Integer modelId, Vehicle vehicle) {
+        VehicleModel vehicleModel = vehicleModelRepository.findById(modelId)
+                .orElseThrow(() -> new VehicleNotFoundException(modelId.toString()));
+
+        Vehicle existingVehicle = vehicleModel.getVehicles().stream()
+                .filter(v -> v.getId().equals(vehicle.getId()))
+                .findFirst()
                 .orElseThrow(() -> new VehicleNotFoundException(vehicle.getId().toString()));
 
-        // Check if a different vehicle already has this VIN
         Optional<Vehicle> vehicleWithSameVin = vehicleRepository.findByVin(vehicle.getVin());
         if (vehicleWithSameVin.isPresent() && !vehicleWithSameVin.get().getId().equals(vehicle.getId())) {
             throw new VehicleAlreadyExistsException(vehicle.getVin());
         }
 
-        // Update the fields on the existing vehicle
         existingVehicle.setLicensePlate(vehicle.getLicensePlate());
         existingVehicle.setVin(vehicle.getVin());
         existingVehicle.setColor(vehicle.getColor());
@@ -69,51 +85,47 @@ public class VehicleServiceImpl implements VehicleService {
         existingVehicle.setPurchaseDate(vehicle.getPurchaseDate());
         existingVehicle.setPurchasePrice(vehicle.getPurchasePrice());
 
-        // Save the updated vehicle back to the repository
-        Vehicle savedVehicle = vehicleRepository.save(existingVehicle);
-        System.out.println("Saved Vehicle: " + savedVehicle);
-        return savedVehicle;
+        vehicleModelRepository.save(vehicleModel);
+        return existingVehicle;
     }
 
     @Override
     @CacheEvict(value = "vehicles", key = "#id")
-    public Vehicle patchVehicle(Map<String, Object> updates, Integer id) throws FieldNotFoundException{
-        //Find vehicle by ID or throw exception if not found
-        Vehicle vehiclePatch = vehicleRepository.findById(id)
-                .orElseThrow(() -> new VehicleNotFoundException(String.valueOf(id)));
+    public Vehicle patchVehicle(Integer makeId, Integer modelId, Map<String, Object> updates, Integer id) {
+        VehicleModel vehicleModel = vehicleModelRepository.findById(modelId)
+                .orElseThrow(() -> new VehicleNotFoundException(modelId.toString()));
 
-        // Check if the VIN is part of the update
-        if(updates.containsKey("vin")){
-            String newVin = updates.get("vin").toString();
+        Vehicle vehiclePatch = vehicleModel.getVehicles().stream()
+                .filter(v -> v.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new VehicleNotFoundException(id.toString()));
 
-            Optional<Vehicle> existingVehicle = vehicleRepository.findByVin(newVin);
-            if (existingVehicle.isPresent() && !existingVehicle.get().getId().equals(id)){
-                throw new VehicleAlreadyExistsException(newVin);
-            }
-        }
-
-        //Iterate over the map of fields to update
         updates.forEach((fieldName, fieldValue) -> {
-            try{
-                //Use reflection to get the field of the vehicle class
+            try {
                 Field field = Vehicle.class.getDeclaredField(fieldName);
-                //Make field accessible if private
                 field.setAccessible(true);
-                //Set the field value on the vehicle
                 field.set(vehiclePatch, fieldValue);
             } catch (NoSuchFieldException | IllegalAccessException e) {
-                //Throw custom exception if field is not found
-                throw new FieldNotFoundException(fieldName);
+                throw new RuntimeException("Invalid field: " + fieldName);
             }
         });
 
-        //Save the updated vehicle
-        return vehicleRepository.save(vehiclePatch);
+        vehicleModelRepository.save(vehicleModel);
+        return vehiclePatch;
     }
 
     @Override
     @CacheEvict(value = "vehicles", key = "#id")
-    public void deleteVehicle(Integer id) {
-        vehicleRepository.deleteById(id);
+    public void deleteVehicle(Integer makeId, Integer modelId, Integer id) {
+        VehicleModel vehicleModel = vehicleModelRepository.findById(modelId)
+                .orElseThrow(() -> new VehicleNotFoundException(modelId.toString()));
+
+        Vehicle vehicleToDelete = vehicleModel.getVehicles().stream()
+                .filter(v -> v.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new VehicleNotFoundException(id.toString()));
+
+        vehicleModel.getVehicles().remove(vehicleToDelete);
+        vehicleModelRepository.save(vehicleModel);
     }
 }

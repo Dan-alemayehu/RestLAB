@@ -4,19 +4,18 @@ import com.astontech.rest.domain.Vehicle;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public interface VehicleService {
 
-    Vehicle saveVehicle(Vehicle vehicle);
+    Vehicle saveVehicle(Integer makeId, Integer modelId, Vehicle vehicle);  // Add makeId, modelId
 
-    Vehicle findVehicleById(Integer id);
+    Vehicle findVehicleById(Integer makeId, Integer modelId, Integer id);  // Add makeId, modelId
 
-    Vehicle updateVehicle(Vehicle vehicle);
+    Vehicle updateVehicle(Integer makeId, Integer modelId, Vehicle vehicle);  // Add makeId, modelId
 
-    Vehicle patchVehicle(Map<String, Object> updates, Integer id);
+    Vehicle patchVehicle(Integer makeId, Integer modelId, Map<String, Object> updates, Integer id);  // Add makeId, modelId
 
-    void deleteVehicle(Integer id);
+    void deleteVehicle(Integer makeId, Integer modelId, Integer id);  // Add makeId, modelId
 
-    List<Vehicle> findAllVehicles();
+    List<Vehicle> findAllVehicles(Integer makeId, Integer modelId);  // Add makeId, modelId
 }

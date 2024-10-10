@@ -8,15 +8,16 @@ import java.util.Optional;
 
 public interface VehicleModelService {
 
-    VehicleModel saveVehicleModel (VehicleModel vehicleModel);
+    VehicleModel saveVehicleModel(Integer makeId, VehicleModel vehicleModel);
 
-    VehicleModel findVehicleModelById(Integer id);
+    VehicleModel findVehicleModelByMakeAndId(Integer makeId, Integer id);
 
-    VehicleModel updateVehicleModel(VehicleModel vehicleModel);
+    VehicleModel updateVehicleModel(Integer makeId, VehicleModel vehicleModel);
 
-    VehicleModel patchVehicleModel(Map<String, Object> updates, Integer id);
+    VehicleModel patchVehicleModel(Integer makeId, Map<String, Object> updates, Integer id);
 
-    void deleteVehicleModelById(Integer id);
+    void deleteVehicleModelById(Integer makeId, Integer id);
 
-    List<VehicleModel> findAllVehicleModels();
+    List<VehicleModel> findAllVehicleModelsByMake(Integer makeId);
 }
+

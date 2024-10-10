@@ -21,7 +21,7 @@ import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 @Service
 public class VehicleMakeServiceImpl implements VehicleMakeService{
 
-    private VehicleMakeRepository vehicleMakeRepository;
+    private final VehicleMakeRepository vehicleMakeRepository;
 
     @Autowired
     public VehicleMakeServiceImpl(VehicleMakeRepository vehicleMakeRepository) {

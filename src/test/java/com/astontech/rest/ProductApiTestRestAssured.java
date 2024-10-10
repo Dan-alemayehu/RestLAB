@@ -76,17 +76,20 @@ public class ProductApiTestRestAssured {
     }
 
     //Vehicle Model Tests
+    // Vehicle Model Tests
     @Test
     public void whenUseVehicleModelPathParamValidId_thenOk() {
-        given().pathParam("id", 2)
-                .when().get("/vehicle-models/{id}")
+        given().pathParam("makeId", 1) // Assuming make ID 1 exists
+                .pathParam("id", 2)    // Assuming model ID 2 exists
+                .when().get("/vehicle-makes/{makeId}/vehicle-models/{id}")
                 .then().statusCode(200);
     }
 
     @Test
     public void whenUseVehicleModelPathParamInvalidId_thenNotFound() {
-        given().pathParam("id", 999)
-                .when().get("/vehicle-models/{id}")
+        given().pathParam("makeId", 1) // Assuming make ID 1 exists
+                .pathParam("id", 999)  // Invalid model ID
+                .when().get("/vehicle-makes/{makeId}/vehicle-models/{id}")
                 .then().statusCode(404);
     }
 
@@ -97,7 +100,8 @@ public class ProductApiTestRestAssured {
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .when().post("/vehicle-models/")
+                .pathParam("makeId", 1) // Assuming make ID 1 exists
+                .when().post("/vehicle-makes/{makeId}/vehicle-models/")
                 .then().statusCode(201);
     }
 
@@ -108,47 +112,52 @@ public class ProductApiTestRestAssured {
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 3)
-                .when().put("/vehicle-models/{id}")
+                .pathParam("makeId", 1) // Assuming make ID 1 exists
+                .pathParam("id", 3)      // Assuming model ID 3 exists
+                .when().put("/vehicle-makes/{makeId}/vehicle-models/{id}")
                 .then().statusCode(200);
     }
 
     @Test
     public void whenPatchVehicleModel_thenOk() {
-        // Creating a JSON object to represent the updates we want to apply
         JSONObject requestBody = new JSONObject();
-        requestBody.put("modelName", "CyberTruck");  // Update the name
+        requestBody.put("modelName", "CyberTruck");
 
-        // Sending the PATCH request and verifying the response
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 3) // Assuming vehicle with ID 2 exists
-                .when().patch("/vehicle-models/{id}")
-                .then().statusCode(200)  // Expecting HTTP 200 OK status
+                .pathParam("makeId", 1) // Assuming make ID 1 exists
+                .pathParam("id", 3)     // Assuming model ID 3 exists
+                .when().patch("/vehicle-makes/{makeId}/vehicle-models/{id}")
+                .then().statusCode(200)
                 .assertThat()
-                .body("modelName", equalTo("CyberTruck"));  // Verifying the color is updated
-
+                .body("modelName", equalTo("CyberTruck"));
     }
 
     @Test
     public void whenDeleteVehicleModel_thenOk() {
-        given().pathParam("id", 3)
-                .when().delete("/vehicle-models/{id}")
+        given().pathParam("makeId", 1) // Assuming make ID 1 exists
+                .pathParam("id", 3)    // Assuming model ID 3 exists
+                .when().delete("/vehicle-makes/{makeId}/vehicle-models/{id}")
                 .then().statusCode(204);
     }
 
     //Vehicle Test
+// Vehicle Tests
     @Test
     public void whenUseVehiclePathParamValidId_thenOk() {
-        given().pathParam("id", 3)
-                .when().get("/vehicle/{id}")
+        given().pathParam("makeId", 1) // Assuming make ID 1 exists
+                .pathParam("modelId", 2) // Assuming model ID 2 exists
+                .pathParam("id", 3)       // Assuming vehicle ID 3 exists
+                .when().get("/vehicle-makes/{makeId}/vehicle-models/{modelId}/vehicle/{id}")
                 .then().statusCode(200);
     }
 
     @Test
     public void whenUseVehiclePathParamInvalidId_thenNotFound() {
-        given().pathParam("id", 999)
-                .when().get("/vehicle/{id}")
+        given().pathParam("makeId", 1)   // Assuming make ID 1 exists
+                .pathParam("modelId", 2) // Assuming model ID 2 exists
+                .pathParam("id", 999)    // Invalid vehicle ID
+                .when().get("/vehicle-makes/{makeId}/vehicle-models/{modelId}/vehicle/{id}")
                 .then().statusCode(404);
     }
 
@@ -162,7 +171,9 @@ public class ProductApiTestRestAssured {
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .when().post("/vehicle/")
+                .pathParam("makeId", 1)   // Assuming make ID 1 exists
+                .pathParam("modelId", 2)  // Assuming model ID 2 exists
+                .when().post("/vehicle-makes/{makeId}/vehicle-models/{modelId}/vehicle/")
                 .then().statusCode(201);
     }
 
@@ -176,35 +187,40 @@ public class ProductApiTestRestAssured {
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 4)
-                .when().put("/vehicle/{id}")
+                .pathParam("makeId", 1)   // Assuming make ID 1 exists
+                .pathParam("modelId", 2)  // Assuming model ID 2 exists
+                .pathParam("id", 4)       // Assuming vehicle ID 4 exists
+                .when().put("/vehicle-makes/{makeId}/vehicle-models/{modelId}/vehicle/{id}")
                 .then().statusCode(200);
     }
 
     @Test
     public void whenPatchVehicle_thenOk() {
-        // Creating a JSON object to represent the updates we want to apply
         JSONObject requestBody = new JSONObject();
-        requestBody.put("color", "Blue");  // Update the color
-        requestBody.put("year", 2022);     // Update the year
+        requestBody.put("color", "Blue");
+        requestBody.put("year", 2022);
 
-        // Sending the PATCH request and verifying the response
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 4) // Assuming vehicle with ID 3 exists
-                .when().patch("/vehicle/{id}")
-                .then().statusCode(200)  // Expecting HTTP 200 OK status
+                .pathParam("makeId", 1)   // Assuming make ID 1 exists
+                .pathParam("modelId", 2)  // Assuming model ID 2 exists
+                .pathParam("id", 4)       // Assuming vehicle ID 4 exists
+                .when().patch("/vehicle-makes/{makeId}/vehicle-models/{modelId}/vehicle/{id}")
+                .then().statusCode(200)
                 .assertThat()
-                .body("color", equalTo("Blue"))  // Verifying the color is updated
-                .body("year", equalTo(2022));    // Verifying the year is updated
+                .body("color", equalTo("Blue"))
+                .body("year", equalTo(2022));
     }
 
     @Test
     public void whenDeleteVehicle_thenOk() {
-        given().pathParam("id", 4)
-                .when().delete("/vehicle/{id}")
+        given().pathParam("makeId", 1)   // Assuming make ID 1 exists
+                .pathParam("modelId", 2) // Assuming model ID 2 exists
+                .pathParam("id", 4)      // Assuming vehicle ID 4 exists
+                .when().delete("/vehicle-makes/{makeId}/vehicle-models/{modelId}/vehicle/{id}")
                 .then().statusCode(204);
     }
+
 
     //Exception testing
     @Test
