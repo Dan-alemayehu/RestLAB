@@ -36,19 +36,21 @@ public class VehicleModelRest {
     }
 
     //Post Method: Add a vehicle make
-    @PostMapping("/")
-    public ResponseEntity<VehicleModel> addVehicleModel(@RequestBody VehicleModel vehicleModel){
+    @PostMapping("/{makeId}")
+    public ResponseEntity<VehicleModel> addVehicleModel(@PathVariable Integer makeId,
+                                                        @RequestBody VehicleModel vehicleModel){
         return new ResponseEntity<>(
-                vehicleModelService.saveVehicleModel(vehicleModel),
+                vehicleModelService.saveVehicleModel(makeId, vehicleModel),
                 HttpStatus.CREATED
                 );
     }
     //Put Method: Update a vehicle model
-    @PutMapping("/{id}")
-    public ResponseEntity<VehicleModel> updateVehicleModel(@PathVariable Integer id,
+    @PutMapping("/{makeId}/{id}")
+    public ResponseEntity<VehicleModel> updateVehicleModel(@PathVariable Integer makeId,
+                                                           @PathVariable Integer id,
                                                            @RequestBody VehicleModel vehicleModel){
         vehicleModel.setId(id);
-        VehicleModel updatedVehicleModel = vehicleModelService.updateVehicleModel(vehicleModel);
+        VehicleModel updatedVehicleModel = vehicleModelService.updateVehicleModel(makeId, vehicleModel);
         return ResponseEntity.ok(updatedVehicleModel);
     }
 

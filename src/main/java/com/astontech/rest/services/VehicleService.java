@@ -10,11 +10,11 @@ public interface VehicleService {
 
     Vehicle saveVehicle(Integer modelId, Vehicle vehicle);
 
-    Vehicle findVehicleById(Integer id);
+    Vehicle findVehicleById(Integer modelId, Integer id);
 
     Vehicle updateVehicle(Integer modelId, Vehicle vehicle);
 
-    Vehicle patchVehicle(Map<String, Object> updates, Integer id);
+    Vehicle patchVehicle(Integer modelId, Map<String, Object> updates, Integer id);
 
     void deleteVehicle(Integer id);
 

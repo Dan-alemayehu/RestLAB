@@ -38,7 +38,11 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
 //    @Cacheable(value = "vehicles", key = "#id")
-    public Vehicle findVehicleById(Integer id) {
+    public Vehicle findVehicleById(Integer id, Integer modelId) {
+        Optional<VehicleModel> vehicleModel = vehicleModelRepository.findById(modelId);
+        if (vehicleModel.isEmpty()) {
+            throw new VehicleModelNotFoundException(vehicleModel.toString());
+        }
         return vehicleRepository.findById(id)
                 .orElseThrow(() -> new VehicleNotFoundException(id.toString()));
     }
@@ -93,7 +97,12 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
 //    @CacheEvict(value = "vehicles", key = "#id")
-    public Vehicle patchVehicle(Map<String, Object> updates, Integer id) throws FieldNotFoundException{
+    public Vehicle patchVehicle(Integer modelId, Map<String, Object> updates, Integer id) throws FieldNotFoundException{
+        Optional<VehicleModel> vehicleModel = vehicleModelRepository.findById(modelId);
+        if (vehicleModel.isEmpty()) {
+            throw new VehicleModelNotFoundException(vehicleModel.toString());
+        }
+
         //Find vehicle by ID or throw exception if not found
         Vehicle vehiclePatch = vehicleRepository.findById(id)
                 .orElseThrow(() -> new VehicleNotFoundException(String.valueOf(id)));
@@ -124,7 +133,10 @@ public class VehicleServiceImpl implements VehicleService {
         });
 
         //Save the updated vehicle
-        return vehicleRepository.save(vehiclePatch);
+        vehicleModel.get().getVehicles().add(vehiclePatch);
+        vehicleModelRepository.save(vehicleModel.get());
+        System.out.println("Saved Vehicle: " + vehiclePatch);
+        return vehicleRepository.findByVin(vehiclePatch.getVin()).get();
     }
 
     @Override

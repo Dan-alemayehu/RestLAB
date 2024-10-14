@@ -25,9 +25,10 @@ public class VehicleRest {
     }
 
     //Get Method: Retrieve vehicle by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Vehicle> findVehicleById(@PathVariable Integer id) {
-        return ResponseEntity.ok(vehicleService.findVehicleById(id));
+    @GetMapping("/{modelId}/{id}")
+    public ResponseEntity<Vehicle> findVehicleById(@PathVariable Integer id,
+                                                   @PathVariable Integer modelId) {
+        return ResponseEntity.ok(vehicleService.findVehicleById(modelId, id));
     }
 
     //Get Method: Retrieve all vehicles
@@ -57,9 +58,11 @@ public class VehicleRest {
     }
 
     //Patch Method: Update a field in the vehicle model
-    @PatchMapping("/{id}")
-    public ResponseEntity<Vehicle> patchVehicle(@PathVariable Integer id, @RequestBody Map<String, Object> updates){
-        return ResponseEntity.ok(vehicleService.patchVehicle(updates, id));
+    @PatchMapping("/{modelId}/{id}")
+    public ResponseEntity<Vehicle> patchVehicle(@PathVariable Integer id,
+                                                @PathVariable Integer modelId,
+                                                @RequestBody Map<String, Object> updates){
+        return ResponseEntity.ok(vehicleService.patchVehicle(modelId, updates, id));
     }
 
     //Delete Method: Delete a vehicle

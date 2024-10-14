@@ -1,9 +1,12 @@
 package com.astontech.rest.services.impl;
 
+import com.astontech.rest.domain.VehicleMake;
 import com.astontech.rest.domain.VehicleModel;
 import com.astontech.rest.exceptions.FieldNotFoundException;
+import com.astontech.rest.exceptions.VehicleMakeNotFoundException;
 import com.astontech.rest.exceptions.VehicleModelAlreadyExistsException;
 import com.astontech.rest.exceptions.VehicleModelNotFoundException;
+import com.astontech.rest.repositories.VehicleMakeRepository;
 import com.astontech.rest.repositories.VehicleModelRepository;
 import com.astontech.rest.services.VehicleModelService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +22,13 @@ import java.util.Optional;
 @Service
 public class VehicleModelServiceImpl implements VehicleModelService {
 
+    private final VehicleMakeRepository vehicleMakeRepository;
     private VehicleModelRepository vehicleModelRepository;
 
     @Autowired
-    public VehicleModelServiceImpl(VehicleModelRepository vehicleModelRepository) {
+    public VehicleModelServiceImpl(VehicleModelRepository vehicleModelRepository, VehicleMakeRepository vehicleMakeRepository) {
         this.vehicleModelRepository = vehicleModelRepository;
+        this.vehicleMakeRepository = vehicleMakeRepository;
     }
 
     @Override
@@ -40,17 +45,28 @@ public class VehicleModelServiceImpl implements VehicleModelService {
     }
 
     @Override
-    public VehicleModel saveVehicleModel(VehicleModel vehicleModel) {
+    public VehicleModel saveVehicleModel(Integer makeId, VehicleModel vehicleModel) {
+        Optional<VehicleMake> vehicleMake = vehicleMakeRepository.findById(makeId);
+        if (vehicleMake.isEmpty()) {
+            throw new VehicleMakeNotFoundException(makeId.toString());
+        }
         Optional<VehicleModel> existingModel = vehicleModelRepository.findByModelName(vehicleModel.getModelName());
         if (existingModel.isPresent()) {
             throw new VehicleModelAlreadyExistsException(vehicleModel.getModelName());
         }
-        return vehicleModelRepository.save(vehicleModel);
+        vehicleMake.get().getVehicleModelList().add(vehicleModel);
+        vehicleMakeRepository.save(vehicleMake.get());
+        return vehicleModelRepository.findById(vehicleModel.getId()).get();
     }
 
     @Override
 //    @CacheEvict(value = "vehicleModels", key = "#vehicleModel.id")
-    public VehicleModel updateVehicleModel(VehicleModel vehicleModel) {
+    public VehicleModel updateVehicleModel(Integer makeId, VehicleModel vehicleModel) {
+        Optional<VehicleMake> vehicleMake = vehicleMakeRepository.findById(makeId);
+        if (vehicleMake.isEmpty()) {
+            throw new VehicleMakeNotFoundException(makeId.toString());
+        }
+
         VehicleModel existingModel = vehicleModelRepository.findById(vehicleModel.getId())
                 .orElseThrow(() -> new VehicleModelNotFoundException(vehicleModel.getId().toString()));
 
@@ -64,9 +80,10 @@ public class VehicleModelServiceImpl implements VehicleModelService {
         existingModel.setModelName(vehicleModel.getModelName());
 
         //Save the updated entity
-        VehicleModel savedModel = vehicleModelRepository.save(existingModel);
-        System.out.println("Saved model: " + savedModel.getModelName());
-        return savedModel;
+        vehicleMake.get().getVehicleModelList().add(vehicleModel);
+        vehicleMakeRepository.save(vehicleMake.get());
+        System.out.println("Saved model: " + vehicleModel.getModelName());
+        return vehicleModelRepository.findById(vehicleModel.getId()).get();
     }
 
     //Patch Method: Change a field in the method
