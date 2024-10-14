@@ -27,6 +27,7 @@ public class VehicleModelServiceImpl implements VehicleModelService {
     }
 
     @Override
+//    @Cacheable(value = "vehicleModels")
     public List<VehicleModel> findAllVehicleModels() {
         return vehicleModelRepository.findAll();
     }
@@ -74,6 +75,19 @@ public class VehicleModelServiceImpl implements VehicleModelService {
     public VehicleModel patchVehicleModel(Map<String, Object> updates, Integer id) throws FieldNotFoundException {
         VehicleModel vehicleModelPatch = vehicleModelRepository.findById(id)
                 .orElseThrow(() -> new VehicleModelNotFoundException(id.toString()));
+
+        //Check if the update includes a new vehicle model name
+        if (updates.containsKey("modelName")) {
+            String newModelName = updates.get("modelName").toString();
+
+            //Find existing vehicle model with the same name, ignore the current one being updated
+            Optional<VehicleModel> duplicateModel = vehicleModelRepository.findByModelName(newModelName);
+
+            if (duplicateModel.isPresent() && !duplicateModel.get().getId().equals(id)){
+                throw new VehicleModelAlreadyExistsException(newModelName);
+            }
+        }
+
         updates.forEach((fieldName, fieldValue) -> {
             try{
                 Field field = VehicleModel.class.getDeclaredField(fieldName);

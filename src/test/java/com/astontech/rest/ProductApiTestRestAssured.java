@@ -72,7 +72,7 @@ public class ProductApiTestRestAssured {
                 .when().patch("/vehicle-makes/{id}")
                 .then().statusCode(200)
                 .assertThat()
-                .body("vehicleMakeName", equalTo("Fisker"));  // Verifying the color is updated
+                .body("vehicleMakeName", equalTo("Fisker"));  // Verifying the make name is updated
 
     }
 
@@ -124,7 +124,7 @@ public class ProductApiTestRestAssured {
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 3)
+                .pathParam("id", 5)
                 .when().put("/vehicle-models/{id}")
                 .then().statusCode(200);
     }
@@ -138,17 +138,17 @@ public class ProductApiTestRestAssured {
         // Sending the PATCH request and verifying the response
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 3) // Assuming vehicle with ID 2 exists
+                .pathParam("id", 5)
                 .when().patch("/vehicle-models/{id}")
-                .then().statusCode(200)  // Expecting HTTP 200 OK status
+                .then().statusCode(200)
                 .assertThat()
-                .body("modelName", equalTo("CyberTruck"));  // Verifying the color is updated
+                .body("modelName", equalTo("CyberTruck"));  // Verifying the model name is updated
 
     }
 
     @Test
     public void whenDeleteVehicleModel_thenOk() {
-        given().pathParam("id", 3)
+        given().pathParam("id", 5)
                 .when().delete("/vehicle-models/{id}")
                 .then().statusCode(204);
     }
@@ -200,7 +200,7 @@ public class ProductApiTestRestAssured {
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 4)
+                .pathParam("id", 6)
                 .when().put("/vehicle/{id}")
                 .then().statusCode(200);
     }
@@ -215,9 +215,9 @@ public class ProductApiTestRestAssured {
         // Sending the PATCH request and verifying the response
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 4) // Assuming vehicle with ID 3 exists
+                .pathParam("id", 6)
                 .when().patch("/vehicle/{id}")
-                .then().statusCode(200)  // Expecting HTTP 200 OK status
+                .then().statusCode(200)
                 .assertThat()
                 .body("color", equalTo("Blue"))  // Verifying the color is updated
                 .body("year", equalTo(2022));    // Verifying the year is updated
@@ -225,7 +225,7 @@ public class ProductApiTestRestAssured {
 
     @Test
     public void whenDeleteVehicle_thenOk() {
-        given().pathParam("id", 4)
+        given().pathParam("id", 6)
                 .when().delete("/vehicle/{id}")
                 .then().statusCode(204);
     }
@@ -319,10 +319,24 @@ public class ProductApiTestRestAssured {
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 3) // Assuming vehicle with ID 3 is being updated
+                .pathParam("id", 3)
                 .when().put("/vehicle/{id}")
                 .then().statusCode(409); // Expecting conflict status code
     }
+
+    @Test
+    public void whenPatchVehicleWithDuplicateVin_thenConflict() {
+        // Assuming "W349582028475" already exists as a VIN
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("vin", "W349582028475");
+
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .pathParam("id", 2)
+                .when().patch("/vehicle/{id}")
+                .then().statusCode(409);  // Expecting 409 Conflict
+    }
+
 
     @Test
     public void whenUpdateVehicleMakeWithDuplicateMake_thenConflict() {
@@ -331,10 +345,24 @@ public class ProductApiTestRestAssured {
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 2) // Assuming vehicle make with ID 2 is being updated
+                .pathParam("id", 2)
                 .when().put("/vehicle-makes/{id}")
                 .then().statusCode(409); // Expecting conflict status code
     }
+
+    @Test
+    public void whenPatchVehicleMakeWithDuplicateName_thenConflict() {
+        // Assuming "Tesla" already exists
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("vehicleMakeName", "Tesla");
+
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .pathParam("id", 2)
+                .when().patch("/vehicle-makes/{id}")
+                .then().statusCode(409);  // Expecting 409 Conflict
+    }
+
 
     @Test
     public void whenUpdateVehicleModelWithDuplicateModel_thenConflict() {
@@ -343,8 +371,22 @@ public class ProductApiTestRestAssured {
 
         given().header("Content-Type", "application/json")
                 .body(requestBody.toJSONString())
-                .pathParam("id", 2) // Assuming vehicle model with ID 5 is being updated
+                .pathParam("id", 2)
                 .when().put("/vehicle-models/{id}")
                 .then().statusCode(409); // Expecting conflict status code
     }
+
+    @Test
+    public void whenPatchVehicleModelWithDuplicateName_thenConflict() {
+        // Assuming "Model X" already exists
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("modelName", "Model X");
+
+        given().header("Content-Type", "application/json")
+                .body(requestBody.toJSONString())
+                .pathParam("id", 2)
+                .when().patch("/vehicle-models/{id}")
+                .then().statusCode(409);  // Expecting 409 Conflict
+    }
+
 }

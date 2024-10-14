@@ -8,11 +8,11 @@ import java.util.Optional;
 
 public interface VehicleService {
 
-    Vehicle saveVehicle(Vehicle vehicle);
+    Vehicle saveVehicle(Integer modelId, Vehicle vehicle);
 
     Vehicle findVehicleById(Integer id);
 
-    Vehicle updateVehicle(Vehicle vehicle);
+    Vehicle updateVehicle(Integer modelId, Vehicle vehicle);
 
     Vehicle patchVehicle(Map<String, Object> updates, Integer id);
 

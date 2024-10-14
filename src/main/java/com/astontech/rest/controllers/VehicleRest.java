@@ -37,20 +37,22 @@ public class VehicleRest {
     }
 
     //Post Method: Add a vehicle
-    @PostMapping("/")
-    public ResponseEntity<Vehicle> addVehicle(@RequestBody Vehicle vehicle){
+    @PostMapping("/{modelId}")
+    public ResponseEntity<Vehicle> addVehicle(@PathVariable Integer modelId,
+                                                  @RequestBody Vehicle vehicle){
         return new ResponseEntity<>(
-                vehicleService.saveVehicle(vehicle),
+                vehicleService.saveVehicle(modelId, vehicle),
                 HttpStatus.CREATED
                 );
     }
 
     //Put Method: Update a vehicle model
-    @PutMapping("/{id}")
+    @PutMapping("{modelId}/{id}")
     public ResponseEntity<Vehicle> updateVehicle(@PathVariable Integer id,
+                                                           @PathVariable Integer modelId,
                                                            @RequestBody Vehicle vehicle){
         vehicle.setId(id);
-        Vehicle updatedVehicle = vehicleService.updateVehicle(vehicle);
+        Vehicle updatedVehicle = vehicleService.updateVehicle(modelId, vehicle);
         return ResponseEntity.ok(updatedVehicle);
     }
 

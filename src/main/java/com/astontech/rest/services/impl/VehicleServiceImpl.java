@@ -1,9 +1,9 @@
 package com.astontech.rest.services.impl;
 
 import com.astontech.rest.domain.Vehicle;
-import com.astontech.rest.exceptions.FieldNotFoundException;
-import com.astontech.rest.exceptions.VehicleAlreadyExistsException;
-import com.astontech.rest.exceptions.VehicleNotFoundException;
+import com.astontech.rest.domain.VehicleModel;
+import com.astontech.rest.exceptions.*;
+import com.astontech.rest.repositories.VehicleModelRepository;
 import com.astontech.rest.repositories.VehicleRepository;
 import com.astontech.rest.services.VehicleModelService;
 import com.astontech.rest.services.VehicleService;
@@ -21,11 +21,15 @@ import java.util.Optional;
 public class VehicleServiceImpl implements VehicleService {
 
     private final VehicleRepository vehicleRepository;
+    private final VehicleModelRepository vehicleModelRepository;
 
     @Autowired
-    public VehicleServiceImpl(VehicleRepository vehicleRepository){
+    public VehicleServiceImpl(VehicleModelRepository vehicleModelRepository, VehicleRepository vehicleRepository){
         this.vehicleRepository = vehicleRepository;
+        this.vehicleModelRepository = vehicleModelRepository;
     }
+
+
 
     @Override
     public List<Vehicle> findAllVehicles() {
@@ -40,17 +44,28 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public Vehicle saveVehicle(Vehicle vehicle) {
+    public Vehicle saveVehicle(Integer modelId, Vehicle vehicle) {
+        Optional<VehicleModel> vehicleModel = vehicleModelRepository.findById(modelId);
+        if (vehicleModel.isEmpty()) {
+            throw new VehicleModelNotFoundException(vehicleModel.toString());
+        }
         Optional<Vehicle> existingVehicle = vehicleRepository.findByVin(vehicle.getVin());
         if (existingVehicle.isPresent()) {
             throw new VehicleAlreadyExistsException(vehicle.getVin());
         }
-        return vehicleRepository.save(vehicle);
+        vehicleModel.get().getVehicles().add(vehicle);
+        vehicleModelRepository.save(vehicleModel.get());
+        return vehicleRepository.findByVin(vehicle.getVin()).get();
     }
 
     @Override
 //    @CacheEvict(value = "vehicles", key = "#vehicle.id")
-    public Vehicle updateVehicle(Vehicle vehicle) {
+    public Vehicle updateVehicle(Integer modelId,Vehicle vehicle) {
+        Optional<VehicleModel> vehicleModel = vehicleModelRepository.findById(modelId);
+        if (vehicleModel.isEmpty()) {
+            throw new VehicleModelNotFoundException(vehicleModel.toString());
+        }
+
         Vehicle existingVehicle = vehicleRepository.findById(vehicle.getId())
                 .orElseThrow(() -> new VehicleNotFoundException(vehicle.getId().toString()));
 
@@ -70,9 +85,10 @@ public class VehicleServiceImpl implements VehicleService {
         existingVehicle.setPurchasePrice(vehicle.getPurchasePrice());
 
         // Save the updated vehicle back to the repository
-        Vehicle savedVehicle = vehicleRepository.save(existingVehicle);
-        System.out.println("Saved Vehicle: " + savedVehicle);
-        return savedVehicle;
+        vehicleModel.get().getVehicles().add(vehicle);
+        vehicleModelRepository.save(vehicleModel.get());
+        System.out.println("Saved Vehicle: " + existingVehicle);
+        return vehicleRepository.findByVin(vehicle.getVin()).get();
     }
 
     @Override
