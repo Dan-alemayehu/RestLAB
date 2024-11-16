@@ -1,6 +1,7 @@
 package com.astontech.rest.domain;
 
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
@@ -24,8 +25,14 @@ public class VehicleModel {
     private Integer version;
     private String modelName;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "model")
+    @JsonIgnore
     private List<Vehicle> vehicles = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "VehicleMakeId")
+    private VehicleMake make;
+    //endregion
 
     //region CONSTRUCTORS
     public VehicleModel() {};

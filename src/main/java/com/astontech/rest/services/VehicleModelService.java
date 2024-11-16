@@ -10,7 +10,7 @@ public interface VehicleModelService {
 
     VehicleModel saveVehicleModel (Integer makeId, VehicleModel vehicleModel);
 
-    VehicleModel findVehicleModelById(Integer id);
+    VehicleModel findVehicleModelById(Integer makeId, Integer id);
 
     VehicleModel updateVehicleModel(Integer makeId, VehicleModel vehicleModel);
 
@@ -19,4 +19,6 @@ public interface VehicleModelService {
     void deleteVehicleModelById(Integer id);
 
     List<VehicleModel> findAllVehicleModels();
+
+    List<VehicleModel> findModelsByMakeId(Integer makeId);
 }

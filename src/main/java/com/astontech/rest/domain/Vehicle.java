@@ -26,6 +26,10 @@ public class Vehicle {
     private Boolean isPurchase;
     private LocalDate purchaseDate;
     private Integer purchasePrice;
+
+    @ManyToOne
+    @JoinColumn(name = "VehicleModelId")
+    private VehicleModel model;
     //endregion
 
     //region CONSTRUCTORS

@@ -7,6 +7,7 @@ import com.astontech.rest.exceptions.VehicleMakeNotFoundException;
 import com.astontech.rest.repositories.VehicleMakeRepository;
 import com.astontech.rest.services.VehicleMakeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
@@ -29,20 +31,20 @@ public class VehicleMakeServiceImpl implements VehicleMakeService{
     }
 
     @Override
-    @Cacheable(value = "vehicleMakes")
+//    @Cacheable(value = "vehicleMakes")
     public List<VehicleMake> findAllVehicleMakes() {
         return vehicleMakeRepository.findAll();
     }
 
     @Override
-    @Cacheable(value = "vehicleMakes", key = "#id")
+//    @Cacheable(value = "vehicleMakes", key = "#id")
     public VehicleMake findVehicleMakeById(Integer id) {
         return vehicleMakeRepository.findById(id)
                 .orElseThrow(() -> new VehicleMakeNotFoundException(id.toString()));
     }
 
     @Override
-    @CacheEvict(value = "vehicleMakes", key = "#vehicleMake.id")
+//    @CacheEvict(value = "vehicleMakes", allEntries = true)
     public VehicleMake saveVehicleMake(VehicleMake vehicleMake) {
         Optional<VehicleMake> existingMake = vehicleMakeRepository.findByVehicleMakeName(vehicleMake.getVehicleMakeName());
         if (existingMake.isPresent()) {
@@ -52,7 +54,7 @@ public class VehicleMakeServiceImpl implements VehicleMakeService{
     }
 
     @Override
-    @CacheEvict(value = "vehicleMakes", key = "#vehicleMake.id")
+//    @CacheEvict(value = "vehicleMakes", allEntries = true)
     public VehicleMake updateVehicleMake(VehicleMake vehicleMake) {
         VehicleMake existingMake = vehicleMakeRepository.findById(vehicleMake.getId())
                 .orElseThrow(() -> new VehicleMakeNotFoundException(vehicleMake.getId().toString()));
@@ -77,7 +79,7 @@ public class VehicleMakeServiceImpl implements VehicleMakeService{
 
     //Patch Method: Change a field in the method
     @Override
-    @CacheEvict(value = "vehicleMakes", key = "#id")
+//    @CacheEvict(value = "vehicleMakes", allEntries = true)
     public VehicleMake patchVehicleMake(Map<String, Object> updates, Integer id) throws FieldNotFoundException {
         VehicleMake vehicleMakePatch = vehicleMakeRepository.findById(id)
                 .orElseThrow(() -> new VehicleMakeNotFoundException(String.valueOf(id)));
@@ -107,7 +109,7 @@ public class VehicleMakeServiceImpl implements VehicleMakeService{
     }
 
     @Override
-    @CacheEvict(value = "vehicleMakes", key = "#id")
+//    @CacheEvict(value = "vehicleMakes", allEntries = true)
     public void deleteVehicleMake(Integer id) {
         vehicleMakeRepository.deleteById(id);
     }

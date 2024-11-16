@@ -10,8 +10,6 @@ import com.astontech.rest.repositories.VehicleMakeRepository;
 import com.astontech.rest.repositories.VehicleModelRepository;
 import com.astontech.rest.services.VehicleModelService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -23,7 +21,7 @@ import java.util.Optional;
 public class VehicleModelServiceImpl implements VehicleModelService {
 
     private final VehicleMakeRepository vehicleMakeRepository;
-    private VehicleModelRepository vehicleModelRepository;
+    private final VehicleModelRepository vehicleModelRepository;
 
     @Autowired
     public VehicleModelServiceImpl(VehicleModelRepository vehicleModelRepository, VehicleMakeRepository vehicleMakeRepository) {
@@ -38,29 +36,44 @@ public class VehicleModelServiceImpl implements VehicleModelService {
     }
 
     @Override
-//    @Cacheable(value = "vehicleModels", key = "#id")
-    public VehicleModel findVehicleModelById(Integer id) {
-        return vehicleModelRepository.findById(id)
-                .orElseThrow(() -> new VehicleModelNotFoundException(id.toString()));
+    public VehicleModel findVehicleModelById(Integer makeId, Integer id) {
+        VehicleMake vehicleMake = vehicleMakeRepository.findById(makeId)
+                .orElseThrow(() -> new VehicleMakeNotFoundException("Vehicle Make with ID " + makeId + " not found"));
+
+        return vehicleMake.getVehicleModelList().stream()
+                .filter(model -> model.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new VehicleModelNotFoundException("Vehicle Model with ID " + id + " not found for Vehicle Make with ID " + makeId));
     }
 
     @Override
+    public List<VehicleModel> findModelsByMakeId(Integer makeId) {
+        VehicleMake vehicleMake = vehicleMakeRepository.findById(makeId)
+                .orElseThrow(() -> new VehicleMakeNotFoundException("Vehicle make with ID " + makeId + " not found"));
+        return vehicleMake.getVehicleModelList();
+    }
+
+
+    @Override
+//    @CacheEvict(value = "vehicleModels", allEntries = true)
     public VehicleModel saveVehicleModel(Integer makeId, VehicleModel vehicleModel) {
         Optional<VehicleMake> vehicleMake = vehicleMakeRepository.findById(makeId);
         if (vehicleMake.isEmpty()) {
             throw new VehicleMakeNotFoundException(makeId.toString());
         }
+        System.out.println("Vehicle Make with ID " + vehicleMake.get().getId());
         Optional<VehicleModel> existingModel = vehicleModelRepository.findByModelName(vehicleModel.getModelName());
         if (existingModel.isPresent()) {
             throw new VehicleModelAlreadyExistsException(vehicleModel.getModelName());
         }
         vehicleMake.get().getVehicleModelList().add(vehicleModel);
         vehicleMakeRepository.save(vehicleMake.get());
-        return vehicleModelRepository.findById(vehicleModel.getId()).get();
+        return vehicleModelRepository.findByModelName(vehicleModel.getModelName())
+                .orElseThrow(() -> new VehicleModelNotFoundException(vehicleModel.getModelName()));
     }
 
     @Override
-//    @CacheEvict(value = "vehicleModels", key = "#vehicleModel.id")
+//    @CacheEvict(value = "vehicleModels", allEntries = true)
     public VehicleModel updateVehicleModel(Integer makeId, VehicleModel vehicleModel) {
         Optional<VehicleMake> vehicleMake = vehicleMakeRepository.findById(makeId);
         if (vehicleMake.isEmpty()) {
@@ -88,7 +101,7 @@ public class VehicleModelServiceImpl implements VehicleModelService {
 
     //Patch Method: Change a field in the method
     @Override
-//    @CacheEvict(value = "vehicleModels", key = "#id")
+//    @CacheEvict(value = "vehicleModels", allEntries = true)
     public VehicleModel patchVehicleModel(Map<String, Object> updates, Integer id) throws FieldNotFoundException {
         VehicleModel vehicleModelPatch = vehicleModelRepository.findById(id)
                 .orElseThrow(() -> new VehicleModelNotFoundException(id.toString()));
@@ -118,7 +131,7 @@ public class VehicleModelServiceImpl implements VehicleModelService {
     }
 
     @Override
-//    @CacheEvict(value = "vehicleModels", key = "#id")
+//    @CacheEvict(value = "vehicleModels", allEntries = true)
     public void deleteVehicleModelById(Integer id) {
         vehicleModelRepository.deleteById(id);
     }

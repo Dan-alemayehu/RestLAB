@@ -39,6 +39,8 @@ public class SeedData implements CommandLineRunner {
             VehicleModel model1 = new VehicleModel("Model X");
             model1.getVehicles().add(vehicle1);
             model1.getVehicles().add(vehicle2);
+            vehicle1.setModel(model1);
+            vehicle2.setModel(model1);
 
             // Create vehicles for the second model
             Vehicle vehicle3 = new Vehicle("IJE-485", 1999, "J49929386465", "Blue");
@@ -46,11 +48,14 @@ public class SeedData implements CommandLineRunner {
             // Create second vehicle model
             VehicleModel model2 = new VehicleModel("Model Y");
             model2.getVehicles().add(vehicle3);
+            vehicle3.setModel(model2);
 
             // Create vehicle make and adding models to it
             VehicleMake vehicleMake = new VehicleMake("Tesla");
             vehicleMake.getVehicleModelList().add(model1);
             vehicleMake.getVehicleModelList().add(model2);
+            model1.setMake(vehicleMake);
+            model2.setMake(vehicleMake);
 
             //Create a second Vehicle Make (for testing purposes)
             VehicleMake vehicleMake2 = new VehicleMake("BYD");
@@ -59,6 +64,7 @@ public class SeedData implements CommandLineRunner {
             // Adding make to list
             vehicleMakes.add(vehicleMake);
             vehicleMakes.add(vehicleMake2);
+
 
             // Saving all to the repository
             vehicleMakeRepository.saveAll(vehicleMakes);

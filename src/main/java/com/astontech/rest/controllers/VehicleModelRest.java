@@ -13,6 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/vehicle-models")
+@CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
 public class VehicleModelRest {
 
@@ -23,14 +24,22 @@ public class VehicleModelRest {
         this.vehicleModelService = vehicleModelService;
     }
 
-    //Get Method: Retrieve vehicle Make by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<VehicleModel> findVehicleModelById(@PathVariable Integer id) {
-        return ResponseEntity.ok(vehicleModelService.findVehicleModelById(id));
+    //Get Method: Retrieve vehicle model by ID
+    @GetMapping("/{makeId}/{id}")
+    public ResponseEntity<VehicleModel> findVehicleModelById(@PathVariable Integer id,
+                                                             @PathVariable Integer makeId) {
+        return ResponseEntity.ok(vehicleModelService.findVehicleModelById(makeId, id));
+    }
+
+    // Get Method: Retrieve all vehicle models by Make ID
+    @GetMapping("/{makeId}")
+    public ResponseEntity<List<VehicleModel>> findModelsByMakeId(@PathVariable Integer makeId) {
+        List<VehicleModel> models = vehicleModelService.findModelsByMakeId(makeId);
+        return ResponseEntity.ok(models);
     }
 
     //Get Method: Get all vehicle models
-    @GetMapping
+    @GetMapping("/")
     public ResponseEntity<List<VehicleModel>> findAllVehicleModels(){
         return ResponseEntity.ok(vehicleModelService.findAllVehicleModels());
     }
@@ -39,6 +48,7 @@ public class VehicleModelRest {
     @PostMapping("/{makeId}")
     public ResponseEntity<VehicleModel> addVehicleModel(@PathVariable Integer makeId,
                                                         @RequestBody VehicleModel vehicleModel){
+        System.out.println("Vehicle Model: " + vehicleModel);
         return new ResponseEntity<>(
                 vehicleModelService.saveVehicleModel(makeId, vehicleModel),
                 HttpStatus.CREATED
