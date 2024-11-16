@@ -30,7 +30,7 @@ public class VehicleMakeRest {
     //Get Method: Retrieve vehicle Make by ID
     @GetMapping("/{id}")
     public ResponseEntity<VehicleMake> findVehicleMakeById(@PathVariable Integer id) {
-        return ResponseEntity.ok(vehicleMakeService.findVehicleMakeById(id));
+        return ResponseEntity.ok(vehicleMakeService.getVehicleMakeWithModels(id));
     }
 
     //Get Method: Get all vehicle makes

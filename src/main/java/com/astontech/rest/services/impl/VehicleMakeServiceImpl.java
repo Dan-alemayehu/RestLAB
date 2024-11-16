@@ -38,10 +38,11 @@ public class VehicleMakeServiceImpl implements VehicleMakeService{
 
     @Override
 //    @Cacheable(value = "vehicleMakes", key = "#id")
-    public VehicleMake findVehicleMakeById(Integer id) {
-        return vehicleMakeRepository.findById(id)
+    public VehicleMake getVehicleMakeWithModels(Integer id) {
+        return vehicleMakeRepository.findByIdWithModels(id)
                 .orElseThrow(() -> new VehicleMakeNotFoundException(id.toString()));
     }
+
 
     @Override
 //    @CacheEvict(value = "vehicleMakes", allEntries = true)

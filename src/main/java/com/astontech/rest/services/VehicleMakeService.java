@@ -12,7 +12,7 @@ public interface VehicleMakeService {
 
     VehicleMake saveVehicleMake (VehicleMake vehicleMake);
 
-    VehicleMake findVehicleMakeById(Integer id);
+    VehicleMake getVehicleMakeWithModels(Integer id);
 
     VehicleMake updateVehicleMake(VehicleMake vehicleMake);
 

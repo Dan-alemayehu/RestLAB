@@ -1,6 +1,7 @@
 package com.astontech.rest.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
@@ -26,7 +27,7 @@ public class VehicleMake {
     private String vehicleMakeName;
     private LocalDate createDate;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "make")
-    @JsonIgnore
+    @JsonManagedReference
     private List<VehicleModel> vehicleModelList = new ArrayList<>();
     //endregion
 

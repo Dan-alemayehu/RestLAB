@@ -1,5 +1,6 @@
 package com.astontech.rest.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -31,6 +32,7 @@ public class VehicleModel {
 
     @ManyToOne
     @JoinColumn(name = "VehicleMakeId")
+    @JsonBackReference
     private VehicleMake make;
     //endregion
 
